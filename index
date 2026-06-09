@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cinema Guide for Martin - Webkit Voice Interactive</title>
+    <style>
+        :root {
+            --primary-color: #e50914; /* Cinema Red */
+            --primary-hover: #b80710;
+            --bg-color: #141414; /* Dark Netflix Style */
+            --card-bg: #1f1f1f;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --accent-color: #f5c518; /* IMDb Yellow */
+            --success-color: #4cd137;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .app-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #333333;
+            margin-top: 10px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .media-container {
+            width: 100%;
+            height: 250px;
+            background-color: #2c2c2c;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 1px solid #444;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .character-bubble {
+            background: #2d2d2d;
+            border-left: 4px solid var(--primary-color);
+            padding: 14px;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .character-name {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .story-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #eeeeee;
+        }
+
+        .interaction-panel {
+            background: #252525;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: left;
+            margin-bottom: 16px;
+            border: 1px dashed #444;
+        }
+
+        .interaction-panel p {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .option-line {
+            margin: 10px 0;
+            font-size: 0.95rem;
+            color: #dddddd;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .option-line::before {
+            content: "🎬";
+            position: absolute;
+            left: 0;
+            font-size: 0.85rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .voice-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .voice-btn:active {
+            background-color: var(--primary-hover);
+            transform: scale(0.98);
+        }
+
+        .voice-btn:disabled {
+            background-color: #555555;
+            color: #888888;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .restart-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid #444;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        .status-box {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            background: #1a1a1a;
+            width: 100%;
+            border: 1px solid #2a2a2a;
+        }
+
+        #status-text {
+            color: var(--text-muted);
+        }
+
+        .status-active {
+            color: var(--accent-color) !important;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-success { color: var(--success-color) !important; font-weight: 600; }
+        .status-error { color: #ff4d4d !important; font-weight: 600; }
+
+        .transcript-zone {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid #2a2a2a;
+            padding-top: 8px;
+        }
+
+        .transcript-text { font-weight: bold; color: var(--accent-color); }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>🍿 Movie Guide</h1>
+        <p>Help Martin find the nearest Cinema</p>
+    </header>
+    
+    <div class="media-container">
+        <img id="scenery-img" src="images/start-point.jpg" alt="Current Location">
+    </div>
+
+    <div class="character-bubble">
+        <div class="character-name">Martin (Your Friend)</div>
+        <div id="story" class="story-text">...</div>
+    </div>
+
+    <div class="interaction-panel" id="interaction-box">
+        <p>🔊 Hold/Tap the button and read ALOUD one option:</p>
+        <div id="options-list"></div>
+    </div>
+
+    <div class="controls">
+        <button id="start-btn" class="voice-btn">
+            <span id="btn-icon">🎙️</span> <span id="btn-text">Tap to Speak</span>
+        </button>
+        <button class="restart-btn" onclick="resetGame()">Start Over</button>
+    </div>
+    
+    <div class="status-box">
+        <div id="status-text">Ready. Please grant microphone access when prompted.</div>
+        <div class="transcript-zone">System heard: <span id="transcript-text" class="transcript-text">...</span></div>
+    </div>
+</div>
+
+<script>
+    // Kịch bản rẽ nhánh hướng dẫn Martin tìm rạp phim
+    const scriptTree = {
+        'start': {
+            text: '"Hey! I really want to watch the new blockbuster movie today, but I\'m totally lost. Should we walk there or take a Grab ride?"',
+            img: 'images/start-point.jpg',
+            keywords: {
+                'walk': 'walk_route',
+                'grab': 'grab_route',
+                'taxi': 'grab_route'
+            },
+            options: [
+                "Let's walk to the cinema",
+                "Let's book a Grab ride"
+            ]
+        },
+        'walk_route': {
+            text: '"Walking sounds healthy! I\'m following you. Oh, look at that huge intersection ahead with the big shopping mall landmark. Do we go inside or turn left?"',
+            img: 'images/landmark.jpg',
+            keywords: {
+                'inside': 'cinema_lobby',
+                'enter': 'cinema_lobby',
+                'mall': 'cinema_lobby',
+                'left': 'lost_scene'
+            },
+            options: [
+                "Go inside the shopping mall",
+                "Turn left at the intersection"
+            ]
+        },
+        'grab_route': {
+            text: '"Awesome, the driver dropped us right at the main entrance of the Grand Mall! It is so cool inside. Which floor should we go to find the ticket box?"',
+            img: 'images/mall-entrance.jpg',
+            keywords: {
+                'fourth': 'cinema_lobby',
+                'top': 'cinema_lobby',
+                'four': 'cinema_lobby',
+                'elevator': 'cinema_lobby',
+                'ground': 'lost_scene',
+                'first': 'lost_scene'
+            },
+            options: [
+                "Take the escalator to the 4th floor",
+                "Check the ground floor shops"
+            ]
+        },
+        'lost_scene': {
+            text: '"Uh-oh! We seem to be in the wrong place. This is just a parking lot/clothing store zone. Let\'s go back to the mall center!"',
+            img: 'images/lost-zone.jpg',
+            keywords: {
+                'back': 'start',
+                'retry': 'start',
+                'start': 'start'
+            },
+            options: [
+                "Let's go back to the starting point"
+            ]
+        },
+        'cinema_lobby': {
+            text: '"Wow, we made it! The smell of caramel popcorn is amazing, and the neon lights are so fancy! Thank you so much for the clear directions. Let\'s buy the tickets and enjoy the movie!" 🎬🍿🎟️',
+            img: 'images/cinema-lobby.jpg',
+            keywords: {}, 
+            options: []
+        }
+    };
+
+    let currentStage = 'start';
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    if (!SpeechRecognition) {
+        alert("Please open this page in Google Chrome (Android) or Safari (iOS) to experience the voice recognition feature!");
+    } else {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US'; 
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+    }
+
+    const startBtn = document.getElementById('start-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-icon');
+    const statusText = document.getElementById('status-text');
+    const transcriptText = document.getElementById('transcript-text');
+    const sceneryImg = document.getElementById('scenery-img');
+    const storyText = document.getElementById('story');
+    const optionsList = document.getElementById('options-list');
+    const interactionBox = document.getElementById('interaction-box');
+
+    if (recognition) {
+        startBtn.addEventListener('click', () => {
+            try {
+                recognition.start();
+            } catch(e) {
+                console.log("Recognition is already running.");
+            }
+        });
+
+        recognition.onstart = () => {
+            statusText.className = "status-active";
+            statusText.innerText = "🎙️ Listening... Speak one of the English options clearly.";
+            btnText.innerText = "Listening...";
+            btnIcon.innerText = "🛑";
+            startBtn.disabled = true;
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            startBtn.disabled = false;
+            btnText.innerText = "Tap to Speak";
+            btnIcon.innerText = "🎙️";
+        };
+
+        recognition.onresult = (event) => {
+            const resultText = event.results[0][0].transcript.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+            transcriptText.innerText = `"${event.results[0][0].transcript}"`;
+            
+            let isMatched = false;
+            const currentKeywords = scriptTree[currentStage].keywords;
+
+            for (let key in currentKeywords) {
+                if (resultText.includes(key)) {
+                    currentStage = currentKeywords[key];
+                    updateApplicationState();
+                    isMatched = true;
+                    break;
+                }
+            }
+
+            if (isMatched) {
+                statusText.className = "status-success";
+                statusText.innerText = "✅ Phrase matched successfully! Scene updated.";
+            } else {
+                statusText.className = "status-error";
+                statusText.innerText = "❌ No match found. Please read the suggested lines clearly.";
+            }
+        };
+
+        recognition.onerror = (event) => {
+            startBtn.disabled = false;
+            btnText.innerText = "Tap to Speak";
+            btnIcon.innerText = "🎙️";
+            statusText.className = "status-error";
+            statusText.innerText = "Microphone Error: " + event.error;
+        };
+    }
+
+    function updateApplicationState() {
+        const stage = scriptTree[currentStage];
+        storyText.innerText = stage.text;
+        sceneryImg.src = stage.img;
+        optionsList.innerHTML = '';
+        
+        if (stage.options && stage.options.length > 0) {
+            interactionBox.innerHTML = '<p>🔊 Hold/Tap the button and read ALOUD one option:</p><div id="options-list"></div>';
+            const freshOptionsList = document.getElementById('options-list');
+            
+            stage.options.forEach(option => {
+                const div = document.createElement('div');
+                div.className = 'option-line';
+                div.innerHTML = `👉 <strong>${option}</strong>`;
+                freshOptionsList.appendChild(div);
+            });
+            startBtn.style.display = 'inline-flex';
+        } else {
+            interactionBox.innerHTML = `<p style="color: var(--success-color); text-align:center; margin-bottom:0; font-weight:bold;">🎉 Mission Accomplished! You successfully guided Martin to the Cinema!</p>`;
+            startBtn.style.display = 'none';
+            statusText.className = "status-success";
+            statusText.innerText = "Arrived at destination.";
+        }
+    }
+
+    function resetGame() {
+        currentStage = 'start';
+        transcriptText.innerText = "...";
+        statusText.className = "";
+        statusText.innerText = "Ready. Tap the button to activate microphone.";
+        updateApplicationState();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        updateApplicationState();
+    });
+</script>
+
+</body>
+</html>
